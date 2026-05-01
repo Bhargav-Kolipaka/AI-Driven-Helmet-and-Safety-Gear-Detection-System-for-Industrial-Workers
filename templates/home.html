@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SafeGuard AI — Construction Safety System</title>
+  <meta name="description" content="AI-powered PPE detection system for construction site safety."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body class="home-page">
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-icon">🦺</span>
+      <span class="nav-title">SafeGuard <span class="accent">AI</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}" class="nav-link active">Home</a>
+      <a href="{{ url_for('admin_login') }}" class="nav-link">Admin</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot pulse"></span>
+        AI-Powered Safety Detection
+      </div>
+      <h1 class="hero-title">
+        Smart PPE Detection<br/>
+        <span class="gradient-text">for Construction Sites</span>
+      </h1>
+      <p class="hero-subtitle">
+        Real-time YOLOv11 detection of helmets, gloves, and safety vests. 
+        Instant siren alerts, and automated email
+        notifications to your site head.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('admin_login') }}" class="btn-secondary">
+          Admin Panel →
+        </a>
+      </div>
+    </div>
+
+    <!-- Floating stats -->
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-icon">🪖</span>
+        <div>
+          <span class="stat-value">3</span>
+          <span class="stat-label">PPE Items Tracked</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">👁️</span>
+        <div>
+          <span class="stat-value">Real-Time</span>
+          <span class="stat-label">Detection Engine</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📧</span>
+        <div>
+          <span class="stat-value">Instant</span>
+          <span class="stat-label">Email Alerts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2 class="section-title">How It Works</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>YOLOv11 Detection</h3>
+        <p>Detects helmet, gloves, and safety vest in real time using CCTV.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚨</div>
+        <h3>Instant Siren Alert</h3>
+        <p>When missing PPE is detected, a siren triggers immediately on-screen and through the system speaker.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📩</div>
+        <h3>Email Notifications</h3>
+        <p>Automatic HTML email with worker photo snapshot sent to the head constructor whenever a violation is detected.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Violation Tracking</h3>
+        <p>Full log of all PPE violations with worker name, missing items, timestamp, and email status.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>DeepSort Tracking</h3>
+        <p>Consistent worker identity tracking across video frames — even when multiple workers are in view.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>SafeGuard AI &copy; 2026 · Construction Safety System</p>
+  </footer>
+
+</body>
+</html>

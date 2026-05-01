@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Video — SafeGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <style>
+    .upload-page-wrap {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+    .upload-card {
+      padding: 36px 32px;
+    }
+
+    /* ==== Drop Zone ==== */
+    .drop-zone {
+      border: 2px dashed rgba(99,102,241,0.45);
+      border-radius: 14px;
+      padding: 44px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(99,102,241,0.04);
+      margin: 22px 0;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: rgba(99,102,241,0.85);
+      background: rgba(99,102,241,0.1);
+    }
+    .drop-zone-icon { font-size: 44px; margin-bottom: 10px; }
+    .drop-zone-text { color: var(--text-dim); font-size: 14px; }
+    .drop-zone-text strong { color: #f59e0b; }
+
+    /* ==== Small Inline Video Player ==== */
+    #video-row {
+      display: none;
+      align-items: center;
+      gap: 16px;
+      margin: 18px 0;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    #video-row video {
+      width: 180px;
+      height: 102px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #000;
+      flex-shrink: 0;
+      display: block;
+    }
+    .vr-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .vr-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vr-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .vr-change {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 5px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: all 0.2s;
+    }
+    .vr-change:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+    }
+
+    /* ==== Progress ==== */
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      height: 6px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      border-radius: 8px;
+      transition: width 0.4s;
+    }
+    #upload-progress-wrap { display: none; }
+
+    /* ==== Result Panel ==== */
+    .result-panel { border-radius: 14px; padding: 20px; margin-top: 20px; }
+    .result-panel.safe   { background: rgba(0,220,80,0.08); border: 1px solid rgba(0,220,80,0.25); }
+    .result-panel.danger { background: rgba(255,50,50,0.08); border: 1px solid rgba(255,50,50,0.25); }
+    .gear-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .gear-chip {
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .gear-chip.ok      { background: rgba(0,220,80,0.15);  color: #00dc50; }
+    .gear-chip.missing { background: rgba(255,50,50,0.15); color: #ff6b6b; }
+
+    /* ==== Violation Table ==== */
+    .thumb-img {
+      width: 110px; height: 62px; object-fit: cover; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s;
+    }
+    .thumb-img:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body class="dashboard-page">
+
+  <nav class="navbar navbar-dashboard">
+    <div class="nav-brand">
+      <span class="nav-icon">🦺</span>
+      <span class="nav-title">SafeGuard <span class="accent">AI</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="{{ url_for('dashboard') if session.get('worker_id') else url_for('admin') }}" class="nav-link">← Back</a>
+    </div>
+  </nav>
+
+  <div class="upload-page-wrap">
+    <div class="glass-card upload-card">
+      <div class="auth-header" style="margin-bottom:18px;">
+        <div class="auth-icon">🎬</div>
+        <h1 class="auth-title">Upload Video — PPE Analysis</h1>
+        <p class="auth-subtitle">Upload a worker video to detect Helmet, Gloves &amp; Safety Vest compliance</p>
+      </div>
+
+      <!-- Drop Zone (hidden once file chosen) -->
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('video-input').click()">
+        <div class="drop-zone-icon">📹</div>
+        <div class="drop-zone-text">
+          <strong>Click to browse</strong> or drag &amp; drop a video<br/>
+          <small style="font-size:12px;margin-top:6px;display:block;">Supported: MP4, AVI, MOV, MKV, WEBM</small>
+        </div>
+      </div>
+      <input type="file" id="video-input" accept="video/*" style="display:none;" onchange="onFileChosen(this)"/>
+
+      <!-- Small inline video player (shown once file chosen) -->
+      <div id="video-row">
+        <video id="mini-player" controls muted playsinline></video>
+        <div class="vr-info">
+          <div class="vr-name" id="vr-name">—</div>
+          <div class="vr-meta" id="vr-meta">—</div>
+          <button class="vr-change" onclick="changeVideo()">🔄 Change</button>
+        </div>
+      </div>
+
+      <!-- Upload Progress -->
+      <div id="upload-progress-wrap">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" id="progress-text">Uploading...</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="auth-alert" id="upload-alert" style="display:none;"></div>
+
+      <button class="btn-primary btn-full" id="analyse-btn" onclick="analyseVideo()" disabled>
+        <span id="analyse-btn-text">🔍 Analyse Video for PPE</span>
+      </button>
+
+      <!-- Result Panel -->
+      <div id="result-panel" style="display:none;" class="result-panel">
+        <h3 id="result-title" style="font-size:18px;font-weight:700;margin-bottom:8px;"></h3>
+        <p id="result-summary" style="font-size:14px;color:var(--text-dim);margin-bottom:12px;"></p>
+        <p id="result-frames" style="font-size:12px;color:var(--text-dim);margin-bottom:6px;"></p>
+        <div class="gear-row" id="gear-row"></div>
+
+        <div id="violation-details" style="margin-top:16px;display:none;">
+          <h4 style="font-size:13px;font-weight:700;color:#ff6b6b;margin-bottom:8px;">⚠️ Violation Frames</h4>
+          <table class="log-table" style="font-size:12px;">
+            <thead><tr><th>Time</th><th>Visual Evidence</th><th>Compliance Status</th></tr></thead>
+            <tbody id="violation-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    let selectedFile = null;
+
+    /* ── Drag & Drop ── */
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if (f) showPreview(f);
+    });
+
+    function onFileChosen(input) {
+      if (input.files && input.files[0]) showPreview(input.files[0]);
+    }
+
+    function showPreview(file) {
+      selectedFile = file;
+
+      /* Update mini-player */
+      const player = document.getElementById('mini-player');
+      player.src   = URL.createObjectURL(file);
+      player.muted = true;
+      player.play().catch(() => {});
+
+      /* Update labels */
+      document.getElementById('vr-name').textContent = '📁 ' + file.name;
+      const mb = (file.size / 1048576).toFixed(1);
+      document.getElementById('vr-meta').textContent = mb + ' MB · ' + (file.type || 'video');
+
+      /* Swap drop-zone → video row */
+      dropZone.style.display                               = 'none';
+      document.getElementById('video-row').style.display  = 'flex';
+      document.getElementById('analyse-btn').disabled     = false;
+      document.getElementById('result-panel').style.display = 'none';
+    }
+
+    function changeVideo() {
+      /* Reset back to drop zone */
+      selectedFile = null;
+      document.getElementById('video-input').value = '';
+      const player = document.getElementById('mini-player');
+      player.pause(); player.src = '';
+      document.getElementById('video-row').style.display   = 'none';
+      dropZone.style.display                               = 'block';
+      document.getElementById('analyse-btn').disabled      = true;
+      document.getElementById('result-panel').style.display = 'none';
+    }
+
+    /* ── Analyse ── */
+    async function analyseVideo() {
+      if (!selectedFile) return;
+
+      const btn      = document.getElementById('analyse-btn');
+      const text     = document.getElementById('analyse-btn-text');
+      const alertEl  = document.getElementById('upload-alert');
+      const progWrap = document.getElementById('upload-progress-wrap');
+      const progBar  = document.getElementById('progress-bar');
+      const progText = document.getElementById('progress-text');
+
+      btn.disabled = true;
+      text.textContent = '⏳ Analysing...';
+      alertEl.style.display = 'none';
+      document.getElementById('result-panel').style.display = 'none';
+
+      progWrap.style.display = 'block';
+      progBar.style.width = '10%';
+      progText.textContent = 'Uploading video...';
+
+      const formData = new FormData();
+      formData.append('video', selectedFile);
+
+      try {
+        let prog = 10;
+        const progInterval = setInterval(() => {
+          if (prog < 70) { prog += 5; progBar.style.width = prog + '%'; }
+        }, 400);
+
+        const resp = await fetch('/upload_video', { method: 'POST', body: formData });
+
+        clearInterval(progInterval);
+        progBar.style.width = '90%';
+        progText.textContent = 'Analysing frames...';
+
+        const data = await resp.json();
+        progBar.style.width = '100%';
+        progWrap.style.display = 'none';
+
+        if (!data.success) {
+          showAlert(alertEl, 'error', '❌ ' + data.message);
+          btn.disabled = false;
+          text.textContent = '🔍 Analyse Video for PPE';
+          return;
+        }
+
+        /* Result panel */
+        const panel = document.getElementById('result-panel');
+        panel.className = 'result-panel ' + (data.compliant ? 'safe' : 'danger');
+        panel.style.display = 'block';
+
+        document.getElementById('result-title').textContent =
+          data.compliant ? '✅ Worker is PPE Compliant' : '⚠️ PPE Violations Detected';
+        document.getElementById('result-summary').textContent = data.gear_summary;
+        document.getElementById('result-frames').textContent =
+          'Frames analysed: ' + data.frames_analysed;
+
+        /* Gear chips */
+        const gearRow = document.getElementById('gear-row');
+        gearRow.innerHTML = '';
+        
+        // Combine found and missing to get all relevant gears
+        const allGears = new Set([...(data.found_ppe || []), ...(data.missing_ppe || [])]);
+        const icons = { 'Helmet': '🪖', 'Gloves': '🧤', 'Safety Vest': '🦺', 'Vest': '🦺', 'Mask': '😷', 'Boots': '🥾', 'Body Suit': '🛡️' };
+
+        Array.from(allGears).sort().forEach(gearName => {
+          const found = (data.found_ppe || []).includes(gearName);
+          const chip  = document.createElement('div');
+          chip.className = 'gear-chip ' + (found ? 'ok' : 'missing');
+          const icon = icons[gearName] || '🏷️';
+          chip.innerHTML = `${icon} ${gearName}: ${found ? '✅ Worn' : '❌ MISSING'}`;
+          gearRow.appendChild(chip);
+        });
+
+        /* Violation frames */
+        const details   = data.details || [];
+        const detailDiv = document.getElementById('violation-details');
+        const detailTb  = document.getElementById('violation-tbody');
+        if (details.length > 0) {
+          detailDiv.style.display = 'block';
+          detailTb.innerHTML = '';
+          details.forEach(d => {
+            const tr  = document.createElement('tr');
+            const img = d.thumbnail
+              ? `<img src="data:image/jpeg;base64,${d.thumbnail}" class="thumb-img" onclick="window.open(this.src)"/>`
+              : '<span style="color:var(--text-dim)">N/A</span>';
+            tr.innerHTML = `
+              <td style="font-weight:600;color:var(--accent)">${d.timestamp}</td>
+              <td>${img}</td>
+              <td style="font-weight:600;">
+                ${d.missing_ppe.length > 0
+                  ? `<span style="color:#ff6b6b;">❌ Missing: ${d.missing_ppe.join(', ')}</span>`
+                  : `<span style="color:#00dc50;">✅ ${d.found_ppe.join(', ')} matched</span>`}
+              </td>`;
+            detailTb.appendChild(tr);
+          });
+        } else {
+          detailDiv.style.display = 'none';
+        }
+
+      } catch (err) {
+        progWrap.style.display = 'none';
+        showAlert(alertEl, 'error', 'Server error during analysis. Please try again.');
+      }
+
+      btn.disabled = false;
+      text.textContent = '🔍 Analyse Video for PPE';
+    }
+  </script>
+</body>
+</html>

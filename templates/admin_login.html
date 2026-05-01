@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — SafeGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body class="auth-page">
+
+  <nav class="navbar">
+    <a href="{{ url_for('home') }}" class="nav-brand">
+      <span class="nav-icon">🦺</span>
+      <span class="nav-title">SafeGuard <span class="accent">AI</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}" class="nav-link">← Home</a>
+    </div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-card glass-card" style="max-width:420px;">
+      <div class="auth-header">
+        <div class="auth-icon">🔐</div>
+        <h1 class="auth-title">Admin Login</h1>
+        <p class="auth-subtitle">Site head / administrator access only</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="auth-alert auth-alert-{{ cat }}" style="display:block;">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="POST" class="admin-form">
+        <div class="form-group">
+          <label class="form-label">Admin Password</label>
+          <input type="password" name="password" class="form-input" placeholder="Enter admin password" autofocus/>
+        </div>
+        <button type="submit" class="btn-primary btn-full">🔓 Login as Admin</button>
+      </form>
+
+      <p class="auth-footer-text" style="margin-top:20px;">
+        Default password: <code style="color:var(--accent);">admin123</code><br/>
+        <small style="color:var(--muted);">(Change in app.py before deploying)</small>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

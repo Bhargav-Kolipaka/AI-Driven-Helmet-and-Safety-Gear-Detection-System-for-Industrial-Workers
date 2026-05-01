@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — SafeGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body class="dashboard-page">
+
+  <nav class="navbar navbar-dashboard">
+    <div class="nav-brand">
+      <span class="nav-icon">🦺</span>
+      <span class="nav-title">SafeGuard <span class="accent">AI</span> — Admin</span>
+    </div>
+    <div class="nav-links">
+      <a href="{{ url_for('upload_video') }}" class="btn-primary-sm" style="background:linear-gradient(135deg,#6c3aff,#a855f7);">🎬 Upload Video</a>
+      <a href="{{ url_for('admin_logout') }}" class="btn-danger-sm">Logout</a>
+    </div>
+  </nav>
+
+  <div class="admin-layout">
+
+    <!-- Stats Row -->
+    <div class="stats-row" style="margin-bottom:24px;">
+      
+      <div class="stat-tile glass-card">
+        <span class="tile-icon">🚨</span>
+        <span class="tile-value">{{ stats.alerts_today }}</span>
+        <span class="tile-label">Alerts Today</span>
+      </div>
+      <div class="stat-tile glass-card">
+        <span class="tile-icon">📊</span>
+        <span class="tile-value">{{ stats.compliance }}%</span>
+        <span class="tile-label">Compliance</span>
+      </div>
+      <div class="stat-tile glass-card">
+        <span class="tile-icon">⚠️</span>
+        <span class="tile-value">{{ stats.total_alerts }}</span>
+        <span class="tile-label">Total Violations</span>
+      </div>
+    </div>
+
+    <!-- Two-Column Layout -->
+    <div class="admin-grid">
+
+      <!-- Violations Log with Gear Status -->
+      <div class="glass-card admin-section">
+        <h3 class="log-title">📋 Violation Log — Gear Status (Last 100)</h3>
+        <div class="log-table-wrapper">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Worker</th>
+                <th>🪖 Helmet</th>
+                <th>🧤 Gloves</th>
+                <th>🦺 Vest</th>
+                <th>Summary</th>
+                <th>Time</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in violations %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ v.worker_name or 'Unknown' }}</td>
+                <!-- Helmet -->
+                <td>
+                  {% if v.gear_status and v.gear_status.get('helmet') == False %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% elif 'Helmet' in v.missing_ppe %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% else %}
+                    <span class="badge-sent">✓ OK</span>
+                  {% endif %}
+                </td>
+                <!-- Gloves -->
+                <td>
+                  {% if v.gear_status and v.gear_status.get('gloves') == False %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% elif 'Gloves' in v.missing_ppe %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% else %}
+                    <span class="badge-sent">✓ OK</span>
+                  {% endif %}
+                </td>
+                <!-- Vest -->
+                <td>
+                  {% if v.gear_status and v.gear_status.get('vest') == False %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% elif 'Safety Vest' in v.missing_ppe %}
+                    <span class="badge-missing">❌ Missing</span>
+                  {% else %}
+                    <span class="badge-sent">✓ OK</span>
+                  {% endif %}
+                </td>
+                <!-- Gear Summary -->
+                <td style="font-size:11px;max-width:180px;">
+                  {% if v.gear_summary %}
+                    <span style="color:{% if 'Not Proper' in v.gear_summary %}#ff6b6b{% else %}#00dc50{% endif %};">
+                      {{ v.gear_summary }}
+                    </span>
+                  {% elif v.missing_ppe %}
+                    <span style="color:#ff6b6b;">Not Proper Gears: {{ v.missing_ppe | join(', ') }} Missing</span>
+                  {% else %}
+                    <span style="color:#00dc50;">All Gears Proper</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:12px;">{{ v.created_at }}</td>
+                <td>
+                  {% if v.email_sent %}
+                    <span class="badge-sent">✓ Sent</span>
+                  {% else %}
+                    <span class="badge-pending">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="8" class="no-data">No violations recorded yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

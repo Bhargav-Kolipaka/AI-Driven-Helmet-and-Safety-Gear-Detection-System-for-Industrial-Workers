@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — SafeGuard AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <style>
+    .scan-overlay-full {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: all 0.5s ease;
+      pointer-events: none;
+      backdrop-filter: blur(2px);
+    }
+    .scan-line {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(to right, transparent, #a855f7, transparent);
+      box-shadow: 0 0 15px #a855f7;
+      animation: scan-move 2s infinite ease-in-out;
+    }
+    @keyframes scan-move {
+      0% { top: 10%; }
+      50% { top: 90%; }
+      100% { top: 10%; }
+    }
+    .scan-text-main {
+      font-size: 24px; font-weight: 800; color: #fff;
+      text-shadow: 0 0 10px rgba(168,85,247,0.8);
+      letter-spacing: 2px; margin-bottom: 8px;
+    }
+    .scan-sub-text {
+      font-size: 14px; color: rgba(255,255,255,0.8); font-weight: 500;
+    }
+    .scan-success { background: rgba(0,220,80,0.2) !important; }
+    .scan-error { background: rgba(255,50,50,0.2) !important; }
+    .fade-out { opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body class="dashboard-page">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dashboard">
+    <div class="nav-brand">
+      <span class="nav-icon">🦺</span>
+      <span class="nav-title">SafeGuard <span class="accent">AI</span></span>
+    </div>
+    <div class="nav-center">
+      <span class="live-badge"><span class="live-dot pulse-red"></span>LIVE DETECTION</span>
+    </div>
+    <div class="nav-links">
+      <span class="nav-worker-name">👷 {{ worker.name }}</span>
+      <a href="{{ url_for('upload_video') }}" class="btn-primary-sm" style="background:linear-gradient(135deg,#6c3aff,#a855f7);">🎬 Upload Video</a>
+      <a href="{{ url_for('logout') }}" class="btn-danger-sm">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass-card">
+      <div class="worker-profile">
+        <div class="worker-avatar">{{ worker.name[0] }}</div>
+        <div class="worker-info">
+          <h3>{{ worker.name }}</h3>
+          <span class="worker-role">{{ worker.role }}</span>
+          <span class="worker-status"><span class="status-dot green-dot"></span>Online</span>
+        </div>
+      </div>
+
+      <hr class="sidebar-divider"/>
+
+      <!-- Login PPE Scan Result -->
+      <div id="login-scan-container">
+        {% if login_scan %}
+        <div class="login-scan-panel" id="login-scan-panel"
+             style="padding:12px;border-radius:10px;margin-bottom:14px;
+                    background:{% if login_scan.status == 'scanning' %}rgba(108,58,255,0.08){% elif login_scan.missing_ppe %}rgba(255,50,50,0.12){% else %}rgba(0,220,80,0.08){% endif %};
+                    border:1px solid {% if login_scan.status == 'scanning' %}rgba(108,58,255,0.3){% elif login_scan.missing_ppe %}rgba(255,50,50,0.3){% else %}rgba(0,220,80,0.3){% endif %};">
+          <h4 id="login-scan-title" style="font-size:12px;font-weight:700;margin-bottom:8px;color:{% if login_scan.status == 'scanning' %}#a855f7{% elif login_scan.missing_ppe %}#ff6b6b{% else %}#00dc50{% endif %};">
+            {% if login_scan.status == 'scanning' %}⏳ SCANNING GEARS...{% elif login_scan.missing_ppe %}⚠️ LOGIN GEAR SCAN{% else %}✅ LOGIN GEAR SCAN{% endif %}
+          </h4>
+          <p id="login-scan-summary" style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">{{ login_scan.summary }}</p>
+          <div id="login-scan-items" style="display:flex;flex-wrap:wrap;gap:4px;">
+            {% if login_scan.status == 'scanning' %}
+              <div class="loading-spinner-sm"></div>
+            {% elif login_scan.missing_ppe %}
+              {% for item in login_scan.missing_ppe %}
+              <span style="background:rgba(255,50,50,0.2);color:#ff6b6b;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;">
+                {{ item }} Missing
+              </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- PPE Status Panel -->
+      <div class="ppe-status-panel">
+        <h4 class="panel-title">PPE Status</h4>
+        <div class="ppe-item" id="ppe-helmet">
+          <span class="ppe-icon">🪖</span>
+          <span class="ppe-name">Helmet</span>
+          <span class="ppe-badge safe" id="badge-helmet">✓ Safe</span>
+        </div>
+        <div class="ppe-item" id="ppe-gloves">
+          <span class="ppe-icon">🧤</span>
+          <span class="ppe-name">Gloves</span>
+          <span class="ppe-badge safe" id="badge-gloves">✓ Safe</span>
+        </div>
+        <div class="ppe-item" id="ppe-vest">
+          <span class="ppe-icon">🦺</span>
+          <span class="ppe-name">Safety Vest</span>
+          <span class="ppe-badge safe" id="badge-vest">✓ Safe</span>
+        </div>
+      </div>
+
+      <!-- Siren Alert Box -->
+      <div class="siren-box" id="siren-box" style="display:none;">
+        <div class="siren-icon">🚨</div>
+        <p class="siren-title">PPE ALERT!</p>
+        <p class="siren-sub">Missing Equipment Detected</p>
+        <p id="siren-missing-list" style="font-size:11px;color:#ff6b6b;font-weight:600;margin-bottom:4px;"></p>
+        <p class="siren-email">📧 Email Sent to Head</p>
+        <button class="btn-stop-siren" onclick="stopSiren()">Stop Siren</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="sidebar-stats">
+        <div class="mini-stat">
+          <span class="mini-val">{{ stats.alerts_today }}</span>
+          <span class="mini-lbl">Alerts Today</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-val">{{ stats.compliance }}%</span>
+          <span class="mini-lbl">Compliance</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-tile glass-card">
+          <span class="tile-icon">👷</span>
+          <span class="tile-value">{{ stats.total_workers }}</span>
+          <span class="tile-label">Workers Registered</span>
+        </div>
+        <div class="stat-tile glass-card">
+          <span class="tile-icon">🚨</span>
+          <span class="tile-value" id="stat-alerts">{{ stats.alerts_today }}</span>
+          <span class="tile-label">Alerts Today</span>
+        </div>
+        <div class="stat-tile glass-card">
+          <span class="tile-icon">📊</span>
+          <span class="tile-value" id="stat-compliance">{{ stats.compliance }}%</span>
+          <span class="tile-label">Compliance Rate</span>
+        </div>
+        <div class="stat-tile glass-card">
+          <span class="tile-icon">⚠️</span>
+          <span class="tile-value">{{ stats.total_alerts }}</span>
+          <span class="tile-label">Total Violations</span>
+        </div>
+      </div>
+
+      <!-- Video Feed -->
+      <div class="video-section glass-card">
+        <div class="video-header">
+          <span class="video-label">📷 Live CCTV Feed — Real-time PPE Detection</span>
+          <span class="video-ts" id="video-ts"></span>
+        </div>
+        <div class="video-wrapper" id="video-wrapper">
+          <!-- Browser Webcam Feed (Hidden for capture) -->
+          <video id="webcam-source" autoplay playsinline muted style="display:none;"></video>
+          <canvas id="snapshot-canvas" style="display:none;"></canvas>
+          
+          <!-- Annotated Display (Updated via JS) -->
+          <img src="" id="video-feed"
+               alt="Live detection feed" class="video-stream" 
+               style="background:#111; min-height:400px; object-fit: cover; display: block;"/>
+          
+          <!-- Hero Scanning Overlay -->
+          <div id="scanning-status-overlay" class="scan-overlay-full">
+            <div class="scan-line"></div>
+            <div class="scan-text-main" id="scan-status-text">INITIALIZING...</div>
+            <div class="scan-sub-text" id="scan-status-sub">Please look at the camera for gear verification</div>
+          </div>
+
+          <div class="video-overlay" id="alert-overlay" style="display:none;">
+            <div class="overlay-siren">🚨 PPE VIOLATION DETECTED</div>
+          </div>
+        </div>
+        <!-- Missing gears ribbon under video -->
+        <div id="missing-gear-ribbon" style="display:none;padding:8px 14px;
+             background:rgba(255,50,50,0.15);border-radius:0 0 12px 12px;
+             font-weight:700;font-size:13px;color:#ff6b6b;text-align:center;">
+        </div>
+      </div>
+
+      <!-- Violation Log -->
+      <div class="log-section glass-card">
+        <h3 class="log-title">📋 Recent Violations</h3>
+        <div class="log-table-wrapper">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Worker</th>
+                <th>Missing PPE</th>
+                <th>Gear Summary</th>
+                <th>Time</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="violations-tbody">
+              {% for v in violations %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ v.worker_name or 'Unknown' }}</td>
+                <td>
+                  {% for item in v.missing_ppe %}
+                    <span class="badge-missing">{{ item }}</span>
+                  {% endfor %}
+                  {% if not v.missing_ppe %}
+                    <span style="color:var(--green);font-size:12px;">All OK</span>
+                  {% endif %}
+                </td>
+                <td style="font-size:11px;color:{% if v.missing_ppe %}#ff6b6b{% else %}#00dc50{% endif %};">
+                  {% if v.gear_summary %}{{ v.gear_summary }}{% elif v.missing_ppe %}Not Proper Gears: {{ v.missing_ppe | join(', ') }} Missing{% else %}All Gears Proper{% endif %}
+                </td>
+                <td>{{ v.created_at }}</td>
+                <td>
+                  {% if v.email_sent %}
+                    <span class="badge-sent">✓ Sent</span>
+                  {% else %}
+                    <span class="badge-pending">Pending</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="6" class="no-data">No violations recorded yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // Update timestamp
+    setInterval(() => {
+      document.getElementById('video-ts').textContent = new Date().toLocaleTimeString();
+    }, 1000);
+
+    // ─── AI Voice Assistant ──────────────────────────────────────────────────
+    let lastSpokenMissing = "";
+    let isSpeaking = false;
+
+    function speakAlert(text) {
+      if (!window.speechSynthesis || isSpeaking) return;
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.pitch = 1.0;
+      utterance.rate  = 0.95; // Slightly slower for clarity
+      utterance.volume = 1.0;
+      utterance.onstart = () => { isSpeaking = true; };
+      utterance.onend   = () => { isSpeaking = false; };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function checkAndSpeakMissing(missing) {
+      if (!missing || missing.length === 0) {
+        lastSpokenMissing = "";
+        return;
+      }
+
+      const currentMissingStr = missing.sort().join('|');
+      if (currentMissingStr !== lastSpokenMissing) {
+        // Build a helpful sentence
+        let speech = "Attention! Safety violation detected. ";
+        missing.forEach(item => {
+          speech += `Please wear your ${item}. `;
+        });
+        
+        speakAlert(speech);
+        lastSpokenMissing = currentMissingStr;
+      }
+    }
+
+    // ─── Status Polling ───────────────────────────────────────────────────────
+    // Poll detection status every 2 seconds
+    async function pollStatus() {
+      try {
+        const resp = await fetch('/api/status');
+        const data = await resp.json();
+
+        const missing = data.missing_ppe || [];
+        const siren   = data.siren_active;
+
+        // Update PPE badges
+        updatePPEBadge('helmet', missing.includes('Helmet'));
+        updatePPEBadge('gloves', missing.includes('Gloves'));
+        updatePPEBadge('vest',   missing.includes('Safety Vest'));
+
+        // Handle Voice Assistance
+        checkAndSpeakMissing(missing);
+
+        // Update Login Scan Panel if present and scanning
+        if (data.login_scan) {
+            updateLoginScanPanel(data.login_scan);
+        }
+
+        // Missing gear ribbon under video
+        const ribbon = document.getElementById('missing-gear-ribbon');
+        if (missing.length > 0) {
+          ribbon.style.display = 'block';
+          ribbon.textContent   = '⚠️ MISSING GEAR DETECTED: ' + missing.join(' | ');
+        } else {
+          ribbon.style.display = 'none';
+        }
+
+        // Toggle siren box and overlay
+        const sirenBox    = document.getElementById('siren-box');
+        const alertOverlay= document.getElementById('alert-overlay');
+        const videoWrapper= document.getElementById('video-wrapper');
+        const missingList = document.getElementById('siren-missing-list');
+
+        if (siren || missing.length > 0) {
+          sirenBox.style.display = 'block';
+          alertOverlay.style.display = 'flex';
+          videoWrapper.classList.add('alert-frame');
+          if (missingList && missing.length > 0) {
+            missingList.textContent = 'Missing: ' + missing.join(', ');
+          }
+        } else {
+          sirenBox.style.display = 'none';
+          alertOverlay.style.display = 'none';
+          videoWrapper.classList.remove('alert-frame');
+        }
+      } catch(e) { console.warn('Status poll error:', e); }
+    }
+
+    function updatePPEBadge(item, missing) {
+      const badge = document.getElementById(`badge-${item}`);
+      const row   = document.getElementById(`ppe-${item}`);
+      if (!badge || !row) return;
+      if (missing) {
+        badge.textContent = '✗ MISSING';
+        badge.className   = 'ppe-badge danger';
+        row.classList.add('ppe-danger');
+      } else {
+        badge.textContent = '✓ Safe';
+        badge.className   = 'ppe-badge safe';
+        row.classList.remove('ppe-danger');
+      }
+    }
+
+    function updateLoginScanPanel(scan) {
+      const panel = document.getElementById('login-scan-panel');
+      const container = document.getElementById('login-scan-container');
+      if (!container) return;
+
+      if (!panel) {
+        // Create it if it appeared after load
+        container.innerHTML = `
+          <div class="login-scan-panel" id="login-scan-panel" style="padding:12px;border-radius:10px;margin-bottom:14px;">
+            <h4 id="login-scan-title" style="font-size:12px;font-weight:700;margin-bottom:8px;"></h4>
+            <p id="login-scan-summary" style="font-size:11px;color:var(--text-muted);margin-bottom:6px;"></p>
+            <div id="login-scan-items" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+          </div>
+        `;
+      }
+
+      const titleEl = document.getElementById('login-scan-title');
+      const sumEl   = document.getElementById('login-scan-summary');
+      const itemsEl = document.getElementById('login-scan-items');
+      const pEl     = document.getElementById('login-scan-panel');
+
+      if (scan.status === 'scanning') {
+        pEl.style.background = 'rgba(108,58,255,0.08)';
+        pEl.style.border = '1px solid rgba(108,58,255,0.3)';
+        titleEl.textContent = '⏳ SCANNING GEARS...';
+        titleEl.style.color = '#a855f7';
+        sumEl.textContent = scan.summary;
+        itemsEl.innerHTML = '<div class="loading-spinner-sm"></div>';
+      } else {
+        const isSafe = !scan.missing_ppe || scan.missing_ppe.length === 0;
+        pEl.style.background = isSafe ? 'rgba(0,220,80,0.08)' : 'rgba(255,50,50,0.12)';
+        pEl.style.border = isSafe ? '1px solid rgba(0,220,80,0.3)' : '1px solid rgba(255,50,50,0.3)';
+        titleEl.textContent = isSafe ? '✅ LOGIN GEAR SCAN' : '⚠️ LOGIN GEAR SCAN';
+        titleEl.style.color = isSafe ? '#00dc50' : '#ff6b6b';
+        sumEl.textContent = scan.summary;
+        
+        let itemsHtml = '';
+        if (scan.missing_ppe) {
+          scan.missing_ppe.forEach(item => {
+            itemsHtml += `<span style="background:rgba(255,50,50,0.2);color:#ff6b6b;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;">${item} Missing</span>`;
+          });
+        }
+        itemsEl.innerHTML = itemsHtml;
+      }
+    }
+
+    async function stopSiren() {
+      await fetch('/api/stop_siren', { method: 'POST' });
+      document.getElementById('siren-box').style.display = 'none';
+    }
+
+    // On Load: Initial Greeting and Scanning Setup
+    window.addEventListener('load', async () => {
+      // 1. Initial Voice Greeting
+      const workerName = "{{ worker.name }}";
+      speakAlert(`Welcome ${workerName}. Initializing gear scan, please look at the camera.`);
+
+      // 2. Initialize Webcam
+      try {
+        await initWebcam('webcam-source', 'scanning-status-overlay', 'scan-status-sub');
+      } catch (e) {
+        statusTxt.textContent = "CAMERA ERROR";
+        statusTxt.style.color = "#ff4444";
+        statusSub.textContent = "Check your browser's camera permissions.";
+        return; // Stop if camera fails
+      }
+
+      let scanCount = 0;
+      const MAX_TURBO_SCANS = 5;
+      const overlay  = document.getElementById('scanning-status-overlay');
+      const statusTxt = document.getElementById('scan-status-text');
+      const statusSub = document.getElementById('scan-status-sub');
+
+      // 3. Start Auto Scanning (with Turbo logic)
+      startAutoScanning('webcam-source', 'snapshot-canvas', (data) => {
+          scanCount++;
+          
+          // Update annotated image
+          if (data.annotated_image) {
+              document.getElementById('video-feed').src = data.annotated_image;
+          }
+
+          // Update badges and voice alerts
+          updatePPEBadge('helmet', data.missing_ppe.includes('Helmet'));
+          updatePPEBadge('gloves', data.missing_ppe.includes('Gloves'));
+          updatePPEBadge('vest',   data.missing_ppe.includes('Safety Vest'));
+          checkAndSpeakMissing(data.missing_ppe);
+
+          // Hero Overlay Management
+          if (scanCount === 1) {
+              statusTxt.textContent = "SCANNING GEARS...";
+              statusTxt.style.color = "#a855f7";
+          }
+
+          if (scanCount >= 2) {
+              const isSafe = data.missing_ppe.length === 0;
+              if (isSafe) {
+                  statusTxt.textContent = "ALL GEARS OK";
+                  statusTxt.style.color = "#00dc50";
+                  statusSub.textContent = "Safe to enter the construction site.";
+                  overlay.classList.add('scan-success');
+              } else {
+                  statusTxt.textContent = "GEAR VIOLATION";
+                  statusTxt.style.color = "#ff6b6b";
+                  statusSub.textContent = "Required gears are missing. Wear them to proceed.";
+                  overlay.classList.add('scan-error');
+              }
+
+              // After few scans or success, fade out the hero overlay
+              if (isSafe || scanCount >= MAX_TURBO_SCANS) {
+                  setTimeout(() => {
+                      overlay.classList.add('fade-out');
+                      // After fade, remove from flow
+                      setTimeout(() => overlay.style.display = 'none', 500);
+                  }, 2500);
+              }
+          }
+      });
+    });
+
+    setInterval(pollStatus, 2000);
+    pollStatus();
+  </script>
+</body>
+</html>
