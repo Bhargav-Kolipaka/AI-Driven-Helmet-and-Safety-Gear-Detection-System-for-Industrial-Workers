@@ -1,4 +1,3 @@
-# AI-Driven-Helmet-and-Safety-Gear-Detection-System-for-Industrial-Workers
 🛡️ SafeGuard AI – Smart PPE Detection System
 
 🚧 AI-Powered Safety Monitoring for Industrial & Construction Sites
@@ -7,22 +6,22 @@
 
 SafeGuard AI is an intelligent safety monitoring system that uses Computer Vision and Deep Learning to detect whether workers are wearing proper Personal Protective Equipment (PPE) such as helmets, gloves, and safety vests.
 
-The system processes real-time video streams or uploaded videos and automatically identifies safety violations. It generates instant alerts, logs violations, and provides an admin dashboard for monitoring compliance.
+The system processes real-time video streams or uploaded videos, detects violations, triggers alerts, and logs results for analysis.
 
 🎯 Key Objectives
-Automate PPE compliance monitoring using AI
+Automate PPE compliance monitoring
 Detect helmets, gloves, and safety vests in real-time
 Reduce human error in safety supervision
-Provide instant alerts for violations
-Maintain logs for safety analysis
+Generate instant alerts for violations
+Maintain violation logs for analysis
 ✨ Features
-🎥 Real-Time Detection using YOLO-based model
-📂 Video Upload Analysis for PPE compliance
-🚨 Instant Alerts & Siren System
-📊 Admin Dashboard with Analytics
-📁 Violation Logs & History Tracking
-📧 Email Notifications for Safety Violations
-🌐 Web-based Interface (Flask App)
+🎥 Real-time detection using YOLO
+📂 Video upload PPE analysis
+🚨 Siren alert system
+📧 Email notifications
+📊 Admin dashboard with analytics
+📁 Violation logs & history tracking
+🌐 Flask-based web application
 
 ## 🖥️ System Screenshots
 ### 🏠 Home Page
@@ -106,13 +105,13 @@ Boots: ❌ Missing
 🔔 Alert System
 🚨 Siren Trigger
 📧 Email Notification
-📊 Logged in Database
+📊 Stored in Database
 🔮 Future Enhancements
 Face recognition for worker identification
 Mobile app integration
 Multi-camera support
 Cloud deployment
-Behavior detection (unsafe actions)
+Behavior detection
 
 📜 License
 
