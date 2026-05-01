@@ -1,148 +1,216 @@
-# 🛡️ SafeGuard AI – Smart PPE Detection System
+<div align="center">
 
-🚧 AI-Powered Safety Monitoring for Industrial & Construction Sites
+# 🛡️ SafeGuard AI
+### Smart PPE Detection System
+**AI-Powered Safety Monitoring for Industrial & Construction Sites**
+
+![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square&logo=python)
+![Flask](https://img.shields.io/badge/Flask-Web_App-black?style=flat-square&logo=flask)
+![YOLO](https://img.shields.io/badge/YOLO-Object_Detection-red?style=flat-square)
+![OpenCV](https://img.shields.io/badge/OpenCV-Computer_Vision-green?style=flat-square&logo=opencv)
+![License](https://img.shields.io/badge/License-Academic-orange?style=flat-square)
+
+</div>
 
 ---
 
 ## 📌 Project Overview
-SafeGuard AI is an intelligent safety monitoring system that uses **Computer Vision and Deep Learning** to detect whether workers are wearing proper Personal Protective Equipment (PPE) such as helmets, gloves, and safety vests.
+
+**SafeGuard AI** is an intelligent safety monitoring system that uses **Computer Vision** and **Deep Learning** to detect whether workers are wearing proper Personal Protective Equipment (PPE) — such as helmets, gloves, and safety vests.
 
 The system processes real-time video streams or uploaded videos, detects violations, triggers alerts, and logs results for analysis.
 
 ---
 
 ## 🎯 Key Objectives
-- Automate PPE compliance monitoring  
-- Detect helmets, gloves, and safety vests in real-time  
-- Reduce human error in safety supervision  
-- Generate instant alerts for violations  
-- Maintain violation logs for analysis  
+
+- ✅ Automate PPE compliance monitoring
+- ✅ Detect helmets, gloves, and safety vests in real-time
+- ✅ Reduce human error in safety supervision
+- ✅ Generate instant alerts for violations
+- ✅ Maintain violation logs for analysis
 
 ---
 
 ## ✨ Features
-- 🎥 Real-time detection using YOLO  
-- 📂 Video upload PPE analysis  
-- 🚨 Siren alert system  
-- 📧 Email notifications  
-- 📊 Admin dashboard with analytics  
-- 📁 Violation logs & history tracking  
-- 🌐 Flask-based web application  
+
+| Feature | Description |
+|--------|-------------|
+| 🎥 Real-Time Detection | Live PPE monitoring using YOLO |
+| 📂 Video Upload Analysis | Analyze pre-recorded footage |
+| 🚨 Siren Alert System | Instant audio alerts on violations |
+| 📧 Email Notifications | Automated violation email alerts |
+| 📊 Admin Dashboard | Analytics and compliance overview |
+| 📁 Violation Logs | History tracking & export |
+| 🌐 Web Application | Flask-based browser interface |
 
 ---
 
 ## 🖥️ System Screenshots
 
-### 🏠 Home Page
-![Home Page](assets/screenshots/home.png)
-
-### 📊 Admin Dashboard
-![Admin Dashboard](assets/screenshots/admin.png)
-
-### 📂 Upload Page
-![Upload Page](assets/screenshots/upload.png)
-
-### ⚠️ Detection Result
-![Result](assets/screenshots/result.png)
+<table>
+  <tr>
+    <td align="center"><b>🏠 Home Page</b></td>
+    <td align="center"><b>📊 Admin Dashboard</b></td>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/home.png" alt="Home Page" width="400"/></td>
+    <td><img src="assets/screenshots/admin.png" alt="Admin Dashboard" width="400"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>📂 Upload Page</b></td>
+    <td align="center"><b>⚠️ Detection Result</b></td>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/upload.png" alt="Upload Page" width="400"/></td>
+    <td><img src="assets/screenshots/result.png" alt="Detection Result" width="400"/></td>
+  </tr>
+</table>
 
 ---
 
 ## ⚙️ Tech Stack
 
-### 🔹 Backend
-- Python  
-- Flask  
-
-### 🔹 AI / ML
-- YOLO (Object Detection)  
-- OpenCV  
-- NumPy  
-
-### 🔹 Frontend
-- HTML, CSS, JavaScript  
-
-### 🔹 Database
-- SQLite  
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python, Flask |
+| **AI / ML** | YOLO (Object Detection), OpenCV, NumPy |
+| **Frontend** | HTML, CSS, JavaScript |
+| **Database** | SQLite |
 
 ---
 
 ## 🧠 System Workflow
-1. Capture video (live or uploaded)  
-2. Preprocess frames (resize, normalize)  
-3. Detect objects using YOLO  
-4. Identify PPE (helmet, gloves, vest, etc.)  
-5. Classify:  
-   - ✅ Compliant  
-   - ❌ Non-Compliant  
-6. Generate alerts (siren + email)  
-7. Store results in database  
-8. Display results on dashboard  
+
+```
+1. 📹 Capture video (live stream or uploaded file)
+2. 🔄 Preprocess frames (resize, normalize)
+3. 🤖 Detect objects using YOLO
+4. 🦺 Identify PPE (helmet, gloves, vest, boots)
+5. 🏷️ Classify → ✅ Compliant | ❌ Non-Compliant
+6. 🚨 Generate alerts (siren + email notification)
+7. 💾 Store results in database
+8. 📊 Display results on admin dashboard
+```
 
 ---
 
 ## 📁 Project Structure
+
+```
 SafeGuard-AI/
-│── app.py
-│── alerts.py
-│── detection.py
-│── tracker.py
-│── database.py
-│── config.py
-│── requirements.txt
-│── safeguard.db
-│── README.md
 │
-├── models/
-├── static/
-├── templates/
-├── worker_faces/
-├── assets/
-│ └── screenshots/
+├── app.py                  # Main Flask application
+├── alerts.py               # Alert system (siren + email)
+├── detection.py            # YOLO PPE detection logic
+├── tracker.py              # Object tracking module
+├── database.py             # Database operations
+├── config.py               # Configuration settings
+├── requirements.txt        # Python dependencies
+├── safeguard.db            # SQLite database
+├── README.md
+│
+├── models/                 # YOLO model weights
+├── static/                 # CSS, JS, images
+├── templates/              # HTML templates
+├── worker_faces/           # Worker face data
+└── assets/
+    └── screenshots/        # UI screenshots
+```
 
 ---
 
 ## 💻 Installation & Setup
 
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/your-username/safeguard-ai.git
 cd safeguard-ai
+```
 
+### 2. Create & Activate Virtual Environment
+```bash
 python -m venv venv
-venv\Scripts\activate   # Windows
 
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
+### 4. Run the Application
+```bash
 python app.py
+```
 
-🚀 Usage
-Open browser
-Go to: http://127.0.0.1:5000
-Navigate to Admin Panel
-Upload video or monitor detection
-View PPE compliance and alerts
-📊 Output Example
-Helmet: ✅ Worn
-Gloves: ❌ Missing
-Vest: ✅ Worn
-Boots: ❌ Missing
+---
 
-➡️ System flags violation and triggers alert
+## 🚀 Usage
 
-🔔 Alert System
-🚨 Siren Trigger
-📧 Email Notification
-📊 Stored in Database
-🔮 Future Enhancements
-Face recognition for worker identification
-Mobile app integration
-Multi-camera support
-Cloud deployment
-Behavior detection
-📜 License
+1. Open your browser and go to: **`http://127.0.0.1:5000`**
+2. Navigate to the **Admin Panel**
+3. **Upload a video** or start **live monitoring**
+4. View **PPE compliance status** and **violation alerts**
 
-This project is developed for academic purposes.
+---
+
+## 📊 Output Example
+
+```
+Worker Detection Result:
+─────────────────────────
+Helmet   : ✅ Worn
+Gloves   : ❌ Missing
+Vest     : ✅ Worn
+Boots    : ❌ Missing
+─────────────────────────
+Status   : ⚠️ VIOLATION DETECTED
+➡️  Alert triggered → Siren + Email notification sent
+```
+
+---
+
+## 🔔 Alert System
+
+When a PPE violation is detected, the system automatically:
+
+- 🚨 **Triggers a siren alert**
+- 📧 **Sends an email notification** to supervisors
+- 💾 **Logs the violation** in the database with timestamp
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] 👤 Face recognition for worker identification
+- [ ] 📱 Mobile app integration
+- [ ] 📷 Multi-camera support
+- [ ] ☁️ Cloud deployment
+- [ ] 🧠 Behavior anomaly detection
+
+---
+
+## 📜 License
+
+This project is developed for **academic purposes**.  
 Free to use with proper attribution.
 
-⭐ Acknowledgement
+---
 
-Thanks to our project guide and institution for continuous support.
+## ⭐ Acknowledgement
+
+Special thanks to our **project guide** and **institution** for their continuous support and guidance throughout this project.
+
+---
+
+<div align="center">
+
+Made with ❤️ for workplace safety
+
+</div>
