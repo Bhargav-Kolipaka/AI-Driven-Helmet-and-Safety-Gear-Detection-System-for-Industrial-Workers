@@ -1,29 +1,38 @@
-🛡️ SafeGuard AI – Smart PPE Detection System
+# 🛡️ SafeGuard AI – Smart PPE Detection System
 
 🚧 AI-Powered Safety Monitoring for Industrial & Construction Sites
 
-📌 Project Overview
+---
 
-SafeGuard AI is an intelligent safety monitoring system that uses Computer Vision and Deep Learning to detect whether workers are wearing proper Personal Protective Equipment (PPE) such as helmets, gloves, and safety vests.
+## 📌 Project Overview
+SafeGuard AI is an intelligent safety monitoring system that uses **Computer Vision and Deep Learning** to detect whether workers are wearing proper Personal Protective Equipment (PPE) such as helmets, gloves, and safety vests.
 
 The system processes real-time video streams or uploaded videos, detects violations, triggers alerts, and logs results for analysis.
 
-🎯 Key Objectives
-Automate PPE compliance monitoring
-Detect helmets, gloves, and safety vests in real-time
-Reduce human error in safety supervision
-Generate instant alerts for violations
-Maintain violation logs for analysis
-✨ Features
-🎥 Real-time detection using YOLO
-📂 Video upload PPE analysis
-🚨 Siren alert system
-📧 Email notifications
-📊 Admin dashboard with analytics
-📁 Violation logs & history tracking
-🌐 Flask-based web application
+---
+
+## 🎯 Key Objectives
+- Automate PPE compliance monitoring  
+- Detect helmets, gloves, and safety vests in real-time  
+- Reduce human error in safety supervision  
+- Generate instant alerts for violations  
+- Maintain violation logs for analysis  
+
+---
+
+## ✨ Features
+- 🎥 Real-time detection using YOLO  
+- 📂 Video upload PPE analysis  
+- 🚨 Siren alert system  
+- 📧 Email notifications  
+- 📊 Admin dashboard with analytics  
+- 📁 Violation logs & history tracking  
+- 🌐 Flask-based web application  
+
+---
 
 ## 🖥️ System Screenshots
+
 ### 🏠 Home Page
 ![Home Page](assets/screenshots/home.png)
 
@@ -36,30 +45,42 @@ Maintain violation logs for analysis
 ### ⚠️ Detection Result
 ![Result](assets/screenshots/result.png)
 
-⚙️ Tech Stack
-🔹 Backend
-Python
-Flask
-🔹 AI / ML
-YOLO (Object Detection)
-OpenCV
-NumPy
-🔹 Frontend
-HTML, CSS, JavaScript
-🔹 Database
-SQLite
-🧠 System Workflow
-Capture video (live or uploaded)
-Preprocess frames (resize, normalize)
-Detect objects using YOLO
-Identify PPE (helmet, gloves, vest, etc.)
-Classify:
-✅ Compliant
-❌ Non-Compliant
-Generate alerts (siren + email)
-Store results in database
-Display results on dashboard
-📁 Project Structure
+---
+
+## ⚙️ Tech Stack
+
+### 🔹 Backend
+- Python  
+- Flask  
+
+### 🔹 AI / ML
+- YOLO (Object Detection)  
+- OpenCV  
+- NumPy  
+
+### 🔹 Frontend
+- HTML, CSS, JavaScript  
+
+### 🔹 Database
+- SQLite  
+
+---
+
+## 🧠 System Workflow
+1. Capture video (live or uploaded)  
+2. Preprocess frames (resize, normalize)  
+3. Detect objects using YOLO  
+4. Identify PPE (helmet, gloves, vest, etc.)  
+5. Classify:  
+   - ✅ Compliant  
+   - ❌ Non-Compliant  
+6. Generate alerts (siren + email)  
+7. Store results in database  
+8. Display results on dashboard  
+
+---
+
+## 📁 Project Structure
 SafeGuard-AI/
 │── app.py
 │── alerts.py
@@ -76,8 +97,13 @@ SafeGuard-AI/
 ├── templates/
 ├── worker_faces/
 ├── assets/
-│   └── screenshots/
-💻 Installation & Setup
+│ └── screenshots/
+
+---
+
+## 💻 Installation & Setup
+
+```bash
 git clone https://github.com/your-username/safeguard-ai.git
 cd safeguard-ai
 
@@ -87,10 +113,10 @@ venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 
 python app.py
+
 🚀 Usage
 Open browser
-Go to:
-http://127.0.0.1:5000
+Go to: http://127.0.0.1:5000
 Navigate to Admin Panel
 Upload video or monitor detection
 View PPE compliance and alerts
@@ -112,7 +138,6 @@ Mobile app integration
 Multi-camera support
 Cloud deployment
 Behavior detection
-
 📜 License
 
 This project is developed for academic purposes.
